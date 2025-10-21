@@ -1,11 +1,6 @@
-{% extends 'base.html' %} 
-{% load static %} 
-
-{% block head %}
+{% extends 'base.html' %} {% load static %} {% block head %}
 <link rel="stylesheet" href="{% static 'css/cats/cat-detail.css' %}" />
-{% endblock %} 
-
-{% block content %}
+{% endblock %} {% block content %}
 <section class="cat-container">
   <div class="cat-img">
     <img src="{% static 'images/sk8r-boi-cat.svg' %}" alt="A skater boy cat" />
@@ -13,9 +8,9 @@
   <div class="cat-details">
     <h1>{{ cat.name }}</h1>
     {% if cat.age > 0 %}
-      <h2>A {{ cat.age }} year old {{ cat.breed }}</h2>
+    <h2>A {{ cat.age }} year old {{ cat.breed }}</h2>
     {% else %}
-      <h2>A {{ cat.breed }} kitten.</h2>
+    <h2>A {{ cat.breed }} kitten.</h2>
     {% endif %}
     <p>{{ cat.description }}</p>
 
@@ -42,9 +37,13 @@
     </div>
 
     <h3>Add a Feeding</h3>
-    <form action="{% url 'add-feeding' cat.id %}" method="POST" class="subsection-content" autocomplete="off">
-      {% csrf_token %}
-      {{ feeding_form.as_p }}
+    <form
+      action="{% url 'add-feeding' cat.id %}"
+      method="POST"
+      class="subsection-content"
+      autocomplete="off"
+    >
+      {% csrf_token %} {{ feeding_form.as_p }}
       <button type="submit" class="btn submit">Add Feeding</button>
     </form>
 
@@ -59,10 +58,10 @@
       </thead>
       <tbody>
         {% for feeding in cat.feeding_set.all %}
-          <tr>
-            <td>{{feeding.date}}</td>
-            <td>{{feeding.get_meal_display}}</td>
-          </tr>
+        <tr>
+          <td>{{feeding.date}}</td>
+          <td>{{feeding.get_meal_display}}</td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
@@ -73,28 +72,49 @@
     {% endif %}
   </section>
 
-<section class="toys">
-  <div class="subsection-title">
-    <h2>Toys</h2>
-    <img src="{% static 'images/string.svg' %}" alt="A ball of string" />
-    <img src="{% static 'images/mouse.svg' %}" alt="A mouse" />
-    <img src="{% static 'images/fish.svg' %}" alt="A fishy toy" />
-  </div>
-  <h3>Available Toys</h3>
-  <div class="subsection-content">
-    {% for toy in toys %}
+  <section class="toys">
+    <div class="subsection-title">
+      <h2>Toys</h2>
+      <img src="{% static 'images/string.svg' %}" alt="A ball of string" />
+      <img src="{% static 'images/mouse.svg' %}" alt="A mouse" />
+      <img src="{% static 'images/fish.svg' %}" alt="A fishy toy" />
+    </div>
+
+    <h3>{{ cat.name }}'s Toys</h3>
+    {% if cat.toys.count %} {% for toy in cat.toys.all %}
+    <div class="toy-container">
+      <div class="color-block" style="background-color: {{ toy.color }}"></div>
+      <a href="{% url 'toy-detail' toy.id %}">
+        <p>A {{ toy.color }} {{ toy.name }}</p>
+      </a>
+      <form action="{% url 'remove-toy' cat.id toy.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Remove Toy</button>
+      </form>
+    </div>
+    {% endfor %} {% else %}
+    <p>{{ cat.name }} doesn't have any toys.</p>
+    {% endif %}
+
+    <h3>Available Toys</h3>
+    <div class="subsection-content">
+      {% if toys.count %} {% for toy in toys %}
       <div class="toy-container">
-        <div class="color-block" style="background-color: {{ toy.color }}"></div>
+        <div
+          class="color-block"
+          style="background-color: {{ toy.color }}"
+        ></div>
         <p>{{ toy.color }} {{ toy.name }}</p>
-        <form action="" method="post">
+        <form action="{% url 'associate-toy' cat.id toy.id %}" method="post">
           {% csrf_token %}
           <button type="submit" class="btn submit">Give Toy</button>
         </form>
       </div>
-    {% endfor %}
-  </div>
-</section>
-
+      {% endfor %} {% else %}
+      <p class="all-toys">{{ cat.name }} already has all the available toys.</p>
+      {% endif %}
+    </div>
+  </section>
 </div>
 
 {% endblock %}
